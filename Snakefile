@@ -95,7 +95,7 @@ rule BUSTEDSMH:
         output = os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json")
     conda: 'environment.yml'        
     shell:
-        "mpirun -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10"
+        "mpirun -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes"
     #end shell
 #end fule 
 
