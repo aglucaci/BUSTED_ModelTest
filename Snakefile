@@ -62,7 +62,7 @@ rule BUSTED:
         output = os.path.join(OUTDIR, "{sample}.BUSTED.json")
     conda: 'environment.yml'
     shell:
-        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} BUSTED --alignment {input.input}  --output {output.output} --starting-points 10 --srv No"
+        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input}  --output {output.output} --starting-points 10 --srv No"
     #end shell
 #end rule
 
@@ -73,7 +73,7 @@ rule BUSTEDS:
         output = os.path.join(OUTDIR, "{sample}.BUSTEDS.json")
     conda: 'environment.yml'
     shell:
-        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes"
+        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes"
     #end shell
 #end rule
 
@@ -84,7 +84,7 @@ rule BUSTEDMH:
         output = os.path.join(OUTDIR, "{sample}.BUSTED-MH.json")
     conda: 'environment.yml'        
     shell:
-        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10 --srv No"
+        "mpirun -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10 --srv No"
     #end shell
 #end fule 
 
@@ -95,7 +95,7 @@ rule BUSTEDSMH:
         output = os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json")
     conda: 'environment.yml'        
     shell:
-        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10"
+        "mpirun -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10"
     #end shell
 #end fule 
 
