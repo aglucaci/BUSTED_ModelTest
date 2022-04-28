@@ -14,11 +14,15 @@ import glob
 # ==============================================================================
 # Declares
 # ==============================================================================
+with open("cluster.json", "r") as in_sc:
+  cluster = json.load(in_sc)
+#end with
 
-DATA_DIR = "/home/aglucaci/BUSTED_ModelTest/data/14_datasets"
+DATA_DIR = "/home/aglucaci/BUSTED_ModelTest/data/14_Datasets"
 
-NEWICKS = [os.path.basename(x) for x in glob.glob(DATA_DIR + '/*.nwk')]
-#NEWICKS = glob.glob(DATA_DIR + '/*.nwk')
+NEXUS = [os.path.basename(x) for x in glob.glob(DATA_DIR + '/*.nex')]
+
+print("# Processing:", len(NEXUS), "files")
 
 OUTDIR = "/home/aglucaci/BUSTED_ModelTest/analysis"
 
@@ -29,8 +33,7 @@ print("# Files will be saved in:", OUTDIR)
 Path(OUTDIR).mkdir(parents=True, exist_ok=True)
 
 # Settings, these can be passed in or set in a config.json type file
-#PPN = cluster["__default__"]["ppn"] 
-PPN = 8
+PPN = cluster["__default__"]["ppn"] 
 
 BUSTEDSMH_BF = "/home/aglucaci/hyphy-analyses/BUSTED-MH/BUSTED-MH.bf"
 
@@ -42,10 +45,10 @@ hyphy = "HYPHYMPI"
 
 rule all:
     input:
-        expand(os.path.join(OUTDIR, "{sample}.BUSTED.json"), sample=NEWICKS),
-        expand(os.path.join(OUTDIR, "{sample}.BUSTEDS.json"), sample=NEWICKS),
-        expand(os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json"), sample=NEWICKS),
-        expand(os.path.join(OUTDIR, "{sample}.BUSTED-MH.json"), sample=NEWICKS)
+        expand(os.path.join(OUTDIR, "{sample}.BUSTED.json"), sample=NEXUS),
+        expand(os.path.join(OUTDIR, "{sample}.BUSTEDS.json"), sample=NEXUS),
+        expand(os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json"), sample=NEXUS),
+        expand(os.path.join(OUTDIR, "{sample}.BUSTED-MH.json"), sample=NEXUS)
 #end rule
 
 # ==============================================================================
@@ -67,10 +70,10 @@ rule BUSTEDS:
     input:
         input = os.path.join(DATA_DIR, "{sample}")
     output:
-        output = os.path.join(OUTDIR_BUSTEDS, "{sample}.BUSTEDS.json")
+        output = os.path.join(OUTDIR, "{sample}.BUSTEDS.json")
     conda: 'environment.yml'
     shell:
-        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} BUSTED --alignment {input.fasta} --output {output.output} --starting-points 10 --srv Yes"
+        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes"
     #end shell
 #end rule
 
@@ -78,10 +81,10 @@ rule BUSTEDMH:
     input:
         input = os.path.join(DATA_DIR, "{sample}")
     output:
-        output = os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json")
+        output = os.path.join(OUTDIR, "{sample}.BUSTED-MH.json")
     conda: 'environment.yml'        
     shell:
-        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.fasta} --output {output.output} --starting-points 10 --srv No"
+        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10 --srv No"
     #end shell
 #end fule 
 
@@ -89,10 +92,10 @@ rule BUSTEDSMH:
     input:
         input = os.path.join(DATA_DIR, "{sample}")
     output:
-        output = os.path.join(OUTDIR_BUSTEDSMH, "{sample}.BUSTEDS-MH.json")
+        output = os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json")
     conda: 'environment.yml'        
     shell:
-        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.fasta} --output {output.output} --starting-points 10"
+        "mpirun --use-hwthread-cpus -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10"
     #end shell
 #end fule 
 
