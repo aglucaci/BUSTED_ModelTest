@@ -40,6 +40,16 @@ BUSTEDSMH_BF = "/home/aglucaci/hyphy-analyses/BUSTED-MH/BUSTED-MH.bf"
 hyphy = "HYPHYMPI"
 
 # ==============================================================================
+# Helper functions
+# ==============================================================================
+
+def assign_code(wildcards):
+    if wildcards.sample == "COXI.nex":
+        return "Vertebrate-mtDNA"
+    return "Universal"
+#end method
+
+# ==============================================================================
 # Rule all
 # ==============================================================================
 
@@ -61,8 +71,10 @@ rule BUSTED:
     output:
         output = os.path.join(OUTDIR, "{sample}.BUSTED.json")
     conda: 'environment.yml'
+    params:
+        code=assign_code
     shell:
-        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input}  --output {output.output} --starting-points 10 --srv No"
+        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input}  --output {output.output} --starting-points 10 --srv No --code {params.code}"
     #end shell
 #end rule
 
@@ -72,8 +84,10 @@ rule BUSTEDS:
     output:
         output = os.path.join(OUTDIR, "{sample}.BUSTEDS.json")
     conda: 'environment.yml'
+    params:
+        code=assign_code
     shell:
-        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes"
+        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes --code {params.code}"
     #end shell
 #end rule
 
@@ -83,8 +97,10 @@ rule BUSTEDMH:
     output:
         output = os.path.join(OUTDIR, "{sample}.BUSTED-MH.json")
     conda: 'environment.yml'        
+    params:
+        code=assign_code    
     shell:
-        "mpirun -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10 --srv No"
+        "mpirun -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10 --srv No --code {params.code}"
     #end shell
 #end fule 
 
@@ -94,8 +110,10 @@ rule BUSTEDSMH:
     output:
         output = os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json")
     conda: 'environment.yml'        
+    params:
+        code=assign_code
     shell:
-        "mpirun -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes"
+        "mpirun -np {PPN} {hyphy} {BUSTEDSMH_BF} --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes --code {params.code}"
     #end shell
 #end fule 
 
