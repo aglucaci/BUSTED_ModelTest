@@ -5,15 +5,15 @@ set -euo pipefail
 printf "Running snakemake...\n"
 
 # Uncomment this command to create the pipeline DAG
-#snakemake --forceall --dag | dot -Tpdf > dag.pdf
+#snakemake --forceall --dag | dot -Tpdf > BUSTED_ModelTest_dag.pdf
 
 mkdir -p logs
 
 snakemake \
       -s Snakefile \
       --cluster-config cluster.json \
-      --cluster "qsub -V -l nodes={cluster.nodes}:ppn={cluster.ppn} -q {cluster.name} -l walltime=120:00:00 -e logs -o logs" \
-      --jobs 4 all \
+      --cluster "qsub -V -l nodes={cluster.nodes}:ppn={cluster.ppn} -q {cluster.name} -l walltime={cluster.walltime} -e logs -o logs" \
+      --jobs 20 all \
       --rerun-incomplete \
       --keep-going \
       --reason \
