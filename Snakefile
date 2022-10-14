@@ -1,5 +1,8 @@
-# Snakefile for BUSTED ModelTest
-# @Author: Alexander G Lucaci
+"""
+Snakefile for BUSTED ModelTest
+
+@Author: Alexander G Lucaci
+"""
 
 # ==============================================================================
 # Imports
@@ -18,12 +21,12 @@ with open("cluster.json", "r") as in_sc:
   cluster = json.load(in_sc)
 #end with
 
+configfile: "config.yaml"
+
 # Set output directory
 BASEDIR = os.getcwd()
 
-#DATA_DIR = "/home/aglucaci/BUSTED_ModelTest/data/14_Datasets"
-
-LABEL = "14_Datasets"
+LABEL = config["DataDirectory"]
 
 DATA_DIR = os.path.join(BASEDIR, "data", LABEL)
 
@@ -31,9 +34,8 @@ NEXUS = [os.path.basename(x) for x in glob.glob(DATA_DIR + '/*.nex')]
 
 print("# Processing:", len(NEXUS), "files")
 
-#OUTDIR = "/home/aglucaci/BUSTED_ModelTest/analysis"
 
-OUTDIR = os.path.join(BASEDIR, "analysis", "14_Datasets")
+OUTDIR = os.path.join(BASEDIR, "analysis", LABEL)
 
 # Report to user
 print("# Files will be saved in:", OUTDIR)
