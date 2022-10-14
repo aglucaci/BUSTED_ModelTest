@@ -38,6 +38,8 @@ print("# Processing:", len(NEXUS), "files")
 #OUTDIR = os.path.join(BASEDIR, "results", LABEL)
 OUTDIR = os.path.join(BASEDIR, "results")
 
+TABLEDIR = os.path.join(BASEDIR, "tables")
+
 # Report to user
 print("# Files will be saved in:", OUTDIR)
 
@@ -73,7 +75,8 @@ rule all:
         expand(os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json"), sample=NEXUS),
         expand(os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json.fit"), sample=NEXUS),
         expand(os.path.join(OUTDIR, "{sample}.BUSTED-MH.json"), sample=NEXUS),
-        expand(os.path.join(OUTDIR, "{sample}.BUSTED-MH.json.fit"), sample=NEXUS)
+        expand(os.path.join(OUTDIR, "{sample}.BUSTED-MH.json.fit"), sample=NEXUS),
+        expand(os.path.join(TABLEDIR, "{sample}.csv"), sample=NEXUS)
 #end rule
 
 # ==============================================================================
@@ -135,6 +138,24 @@ rule BUSTEDSMH:
         "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes --code {params.code} --multiple-hits Double+Triple --save-fit {output.fit}"
     #end shell
 #end rule 
+
+
+rule GenerateTable:
+    input:
+        BS   = rules.BUSTEDS.output.output,
+        BSMH = rules.BUSTEDSMH.output.output,
+        BASE = rules.BUSTED.output.output,
+        BMH  = rules.BUSTEDMH.output.output
+    output:
+        outputCSV = os.path.join(TABLEDIR, "{sample}.csv"),
+    conda: 'environment.yml' 
+    notebook: 
+        "notebooks/Model_BUSTEDScreeningP.ipynb"
+#end rule
+
+
+
+
 
 
 
