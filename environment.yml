@@ -5,8 +5,9 @@ channels:
   - defaults
 
 dependencies:
-  - biopython=1.77
-  - hyphy=2.5.36 
-  - snakemake=5.3
-  - python-bioext=0.19.7
+  - biopython=1.78
+  - hyphy=2.5.42
+  - snakemake=7.15.2
   - python=3.9
+  - jupyter=1.0
+  - jupyterlab_code_formatter=1.5.3

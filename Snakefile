@@ -1,5 +1,8 @@
-# Snakefile for BUSTED ModelTest
-# @Author: Alexander G Lucaci
+"""
+Snakefile for BUSTED ModelTest
+
+@Author: Alexander G Lucaci
+"""
 
 # ==============================================================================
 # Imports
@@ -18,29 +21,31 @@ with open("cluster.json", "r") as in_sc:
   cluster = json.load(in_sc)
 #end with
 
+#configfile: "config.yml"
+
 # Set output directory
 BASEDIR = os.getcwd()
 
-#DATA_DIR = "/home/aglucaci/BUSTED_ModelTest/data/14_Datasets"
+#LABEL = config["DataDirectory"]
 
-LABEL = "14_Datasets"
-
-DATA_DIR = os.path.join(BASEDIR, "data", LABEL)
+#DATA_DIR = os.path.join(BASEDIR, "data", LABEL)
+DATA_DIR = os.path.join(BASEDIR, "data")
 
 NEXUS = [os.path.basename(x) for x in glob.glob(DATA_DIR + '/*.nex')]
 
 print("# Processing:", len(NEXUS), "files")
 
-#OUTDIR = "/home/aglucaci/BUSTED_ModelTest/analysis"
+#OUTDIR = os.path.join(BASEDIR, "results", LABEL)
+OUTDIR = os.path.join(BASEDIR, "results")
 
-OUTDIR = os.path.join(BASEDIR, "analysis", "14_Datasets")
+TABLEDIR = os.path.join(BASEDIR, "tables")
 
 # Report to user
 print("# Files will be saved in:", OUTDIR)
 
 # Create output dir.
-Path(os.path.join(BASEDIR, "analysis")).mkdir(parents=True, exist_ok=True)
-Path(OUTDIR).mkdir(parents=True, exist_ok=True)
+Path(os.path.join(BASEDIR, "results")).mkdir(parents=True, exist_ok=True)
+#Path(OUTDIR).mkdir(parents=True, exist_ok=True)
 
 # Settings, these can be passed in or set in a config.json type file
 PPN = cluster["__default__"]["ppn"] 
@@ -64,9 +69,14 @@ def assign_code(wildcards):
 rule all:
     input:
         expand(os.path.join(OUTDIR, "{sample}.BUSTED.json"), sample=NEXUS),
+        expand(os.path.join(OUTDIR, "{sample}.BUSTED.json.fit"), sample=NEXUS),
         expand(os.path.join(OUTDIR, "{sample}.BUSTEDS.json"), sample=NEXUS),
+        expand(os.path.join(OUTDIR, "{sample}.BUSTEDS.json.fit"), sample=NEXUS),
         expand(os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json"), sample=NEXUS),
-        expand(os.path.join(OUTDIR, "{sample}.BUSTED-MH.json"), sample=NEXUS)
+        expand(os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json.fit"), sample=NEXUS),
+        expand(os.path.join(OUTDIR, "{sample}.BUSTED-MH.json"), sample=NEXUS),
+        expand(os.path.join(OUTDIR, "{sample}.BUSTED-MH.json.fit"), sample=NEXUS),
+        expand(os.path.join(TABLEDIR, "{sample}.csv"), sample=NEXUS)
 #end rule
 
 # ==============================================================================
@@ -77,12 +87,13 @@ rule BUSTED:
     input:
         input = os.path.join(DATA_DIR, "{sample}")
     output:
-        output = os.path.join(OUTDIR, "{sample}.BUSTED.json")
+        output = os.path.join(OUTDIR, "{sample}.BUSTED.json"),
+        fit    = os.path.join(OUTDIR, "{sample}.BUSTED.json.fit")
     conda: 'environment.yml'
     params:
         code=assign_code
     shell:
-        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input}  --output {output.output} --starting-points 10 --srv No --code {params.code}"
+        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv No --code {params.code} --save-fit {output.fit}"
     #end shell
 #end rule
 
@@ -90,12 +101,13 @@ rule BUSTEDS:
     input:
         input = os.path.join(DATA_DIR, "{sample}")
     output:
-        output = os.path.join(OUTDIR, "{sample}.BUSTEDS.json")
+        output = os.path.join(OUTDIR, "{sample}.BUSTEDS.json"),
+        fit    = os.path.join(OUTDIR, "{sample}.BUSTEDS.json.fit")
     conda: 'environment.yml'
     params:
         code=assign_code
     shell:
-        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes --code {params.code}"
+        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes --code {params.code} --save-fit {output.fit}"
     #end shell
 #end rule
 
@@ -103,27 +115,47 @@ rule BUSTEDMH:
     input:
         input = os.path.join(DATA_DIR, "{sample}")
     output:
-        output = os.path.join(OUTDIR, "{sample}.BUSTED-MH.json")
+        output = os.path.join(OUTDIR, "{sample}.BUSTED-MH.json"),
+        fit    = os.path.join(OUTDIR, "{sample}.BUSTED-MH.json.fit")
     conda: 'environment.yml'        
     params:
         code=assign_code    
     shell:
-        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv No --code {params.code} --multiple-hits Double+Triple"
+        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv No --code {params.code} --multiple-hits Double+Triple --save-fit {output.fit}"
     #end shell
-#end fule 
+#end rule 
 
 rule BUSTEDSMH:
     input:
         input = os.path.join(DATA_DIR, "{sample}")
     output:
-        output = os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json")
+        output = os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json"),
+        fit    = os.path.join(OUTDIR, "{sample}.BUSTEDS-MH.json.fit")
     conda: 'environment.yml'        
     params:
         code=assign_code
     shell:
-        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes --code {params.code} --multiple-hits Double+Triple"
+        "mpirun -np {PPN} {hyphy} BUSTED --alignment {input.input} --output {output.output} --starting-points 10 --srv Yes --code {params.code} --multiple-hits Double+Triple --save-fit {output.fit}"
     #end shell
-#end fule 
+#end rule 
+
+
+rule GenerateTable:
+    input:
+        BS   = rules.BUSTEDS.output.output,
+        BSMH = rules.BUSTEDSMH.output.output,
+        BASE = rules.BUSTED.output.output,
+        BMH  = rules.BUSTEDMH.output.output
+    output:
+        outputCSV = os.path.join(TABLEDIR, "{sample}.csv"),
+    conda: 'environment.yml' 
+    notebook: 
+        "notebooks/Model_BUSTEDScreeningP.ipynb"
+#end rule
+
+
+
+
 
 
 
