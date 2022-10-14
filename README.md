@@ -39,6 +39,10 @@ This will produce the following JSON and likelihood fit (.fit) files
 │   ├── adh.nex.BUSTEDS-MH.json.fit
 │   ├── adh.nex.BUSTED-MH.json
 │   ├── adh.nex.BUSTED-MH.json.fit
+│  
+── tables/ 
+│   ├── adh.nex.csv
+│
 
 ```
 
