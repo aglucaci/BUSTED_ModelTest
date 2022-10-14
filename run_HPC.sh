@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-printf "Running snakemake...\n"
+printf "Running BUSTED ModelTest (HPC version)...\n"
 
 # Uncomment this command to create the pipeline DAG
 #snakemake --forceall --dag | dot -Tpdf > BUSTED_ModelTest_dag.pdf
